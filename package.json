@@ -1,0 +1,17 @@
+{
+  "name": "node-mongo-items",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start:dev": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  },
+  "repository": "git@github.com:devark28/node-mongo-items.git",
+  "author": "devark28 <e.shimwa1@alustudent.com>",
+  "license": "MIT"
+}
