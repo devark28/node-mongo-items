@@ -8,26 +8,28 @@ app.use(express.json());
 await mongoose.connect('mongodb://localhost/items_db');
 
 app.get('/items', async (req, res) => {
-  const items = await ItemModel.find({});
-  return res.json(items.length ? items : 'No items found');
+  const items = await ItemModel.find();
+  return res.json(items);
 });
 
 app.get('/items/:id', async (req, res) => {
   const item = await ItemModel.findOne({
     _id: req.params.id,
   });
-  return res.json(item ? item : 'No item found');
+  if (!item) {
+    return res.status(404).json({message: 'No item found'});
+  }
+  return res.json(item);
 });
 
 app.post('/items', async (req, res) => {
   try {
-    return res.json(
-      await ItemModel.create({
-        ...req.body,
-      })
-    );
+    const item = await ItemModel.create({
+      ...req.body,
+    });
+    return res.json(item);
   } catch (err) {
-    return res.json(err.message);
+    return res.status(400).json(err.message);
   }
 });
 
@@ -38,9 +40,15 @@ app.put('/items/:id', async (req, res) => {
     }, {
       ...req.body
     });
-    return res.json(result.modifiedCount ? 'Updated successfully' : result.matchedCount ? 'Item fields have same data' : 'No Item found');
+    if (!result.modifiedCount) {
+      if (!result.matchedCount) {
+        return res.status(400).json({message: 'No Item found'});
+      }
+      return res.json({message: 'Item fields have same data'});
+    }
+    return res.json({message: 'Updated successfully'});
   } catch (err) {
-    return res.json(err.message);
+    return res.status(400).json(err.message);
   }
 });
 
@@ -49,9 +57,12 @@ app.delete('/items/:id', async (req, res) => {
     const result = await ItemModel.deleteOne({
       _id: req.params.id,
     });
-    return res.json(result.deletedCount ? 'Deleted successfully' : 'No Item found');
+    if (!result.deletedCount) {
+      return res.json({message: 'No Item found'});
+    }
+    return res.json({message: 'Deleted successfully'});
   } catch (err) {
-    return res.json(err.message);
+    return res.status(400).json(err.message);
   }
 });
 
